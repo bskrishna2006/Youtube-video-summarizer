@@ -1,0 +1,5 @@
+{
+  "youtube_api_key": "YOUR_YOUTUBE_API_KEY_HERE",
+  "openai_api_key": "YOUR_OPENAI_API_KEY_HERE",
+  "hugging_face_token": "YOUR_HUGGING_FACE_TOKEN_HERE"
+}

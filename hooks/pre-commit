@@ -1,0 +1,26 @@
+#!/bin/sh
+# Pre-commit hook to detect potential API keys and secrets
+# Copy this file to .git/hooks/pre-commit and make it executable:
+# cp hooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+
+echo "Checking for potential API keys and secrets..."
+
+# Search for potential API keys and secrets
+if grep -r -i -E "(api_key|apikey|secret|token|password|key=)" . --exclude-dir=.git --exclude-dir=hooks --exclude="*.md" --exclude="pre-commit" --exclude=".gitignore" --exclude="*.example" | grep -v "YOUR_.*_HERE" | grep -v "your_.*_here" | grep -v "# "; then
+    echo ""
+    echo "❌ Error: Potential API key or secret found in commit!"
+    echo "Please remove sensitive information before committing."
+    echo "Refer to SECURITY.md for best practices."
+    exit 1
+fi
+
+# Search for common API key patterns
+if grep -r -E "AIza[0-9A-Za-z_-]{35}|sk-[0-9A-Za-z]{48}|[0-9a-f]{32,64}" . --exclude-dir=.git --exclude-dir=hooks --exclude="*.md"; then
+    echo ""
+    echo "❌ Error: Detected pattern that looks like an API key!"
+    echo "Please remove sensitive information before committing."
+    exit 1
+fi
+
+echo "✅ No API keys detected. Commit allowed."
+exit 0
