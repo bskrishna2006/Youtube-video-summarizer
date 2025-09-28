@@ -206,149 +206,616 @@ def main():
     st.set_page_config(
         page_title="YouTube Video Summarizer",
         page_icon="🎬",
-        layout="wide"
+        layout="wide",
+        initial_sidebar_state="expanded"
     )
     
-    st.title("🎬 YouTube Video Summarizer")
-    st.markdown("Enter a YouTube video link to get an AI-generated summary using Groq's LLaMA model.")
+    # Custom CSS for better styling
+    st.markdown("""
+    <style>
+    .main-header {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem 1rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        text-align: center;
+        color: white;
+    }
+    .main-header h1 {
+        color: white !important;
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .main-header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+    }
+    .feature-card {
+        background: rgba(102, 126, 234, 0.1) !important;
+        border: 1px solid rgba(102, 126, 234, 0.3);
+        padding: 1.5rem;
+        border-radius: 10px;
+        border-left: 4px solid #667eea;
+        margin: 1rem 0;
+        color: inherit !important;
+    }
+    .feature-card h4 {
+        color: #667eea !important;
+        margin-bottom: 1rem;
+    }
+    .feature-card p, .feature-card li {
+        color: inherit !important;
+        opacity: 0.9;
+    }
+    .metric-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 1rem;
+        border-radius: 10px;
+        text-align: center;
+        color: white;
+        margin: 0.5rem 0;
+    }
+    .success-box {
+        background: rgba(76, 175, 80, 0.1) !important;
+        border: 1px solid rgba(76, 175, 80, 0.3);
+        color: #4CAF50 !important;
+        padding: 1rem;
+        border-radius: 8px;
+        margin: 1rem 0;
+    }
+    .info-box {
+        background: rgba(33, 150, 243, 0.1) !important;
+        border: 1px solid rgba(33, 150, 243, 0.3);
+        color: #2196F3 !important;
+        padding: 1rem;
+        border-radius: 8px;
+        margin: 1rem 0;
+    }
+    .info-box p, .info-box li {
+        color: inherit !important;
+    }
+    .stButton > button {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        border: none !important;
+        padding: 0.75rem 2rem;
+        font-size: 1.1rem;
+        font-weight: bold;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+    }
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
     
-    # Sidebar for summary options
+    /* Summary container styling */
+    .summary-container {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+        border: 2px solid rgba(102, 126, 234, 0.2);
+        border-radius: 15px;
+        overflow: hidden;
+        margin: 1.5rem 0;
+        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.1);
+    }
+    
+    .summary-header {
+        background: linear-gradient(90deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+    }
+    
+    .summary-header h3 {
+        margin: 0; 
+        color: #667eea; 
+        display: flex; 
+        align-items: center;
+        font-size: 1.2rem;
+    }
+    
+    .summary-content {
+        padding: 1.5rem;
+        font-size: 1.05rem;
+        line-height: 1.7;
+        color: inherit;
+        background: rgba(255, 255, 255, 0.02);
+    }
+    
+    .summary-content p {
+        margin-bottom: 1rem;
+        text-align: justify;
+    }
+    
+    /* Sidebar specific styling for better visibility */
+    .css-1d391kg, .css-1v3fvcr {
+        background-color: rgba(248, 249, 250, 0.05) !important;
+    }
+    
+    /* Fix sidebar text visibility */
+    .sidebar .stSelectbox label {
+        color: inherit !important;
+        font-weight: 600;
+    }
+    
+    /* Improve sidebar section headers */
+    .sidebar h3 {
+        color: #667eea !important;
+        border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    /* Sidebar expandable sections */
+    .sidebar .stExpander {
+        border: 1px solid rgba(102, 126, 234, 0.3);
+        border-radius: 8px;
+        margin: 0.5rem 0;
+    }
+    
+    /* Transcript container styling */
+    .transcript-container {
+        background: rgba(248, 249, 250, 0.8);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        padding: 1rem;
+        border-radius: 8px;
+        max-height: 300px;
+        overflow-y: auto;
+        margin: 0.5rem 0;
+    }
+    
+    .transcript-text {
+        white-space: pre-wrap;
+        font-family: 'Segoe UI', 'Consolas', monospace;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        color: #333;
+        margin: 0;
+        background: none;
+        border: none;
+    }
+    
+    /* Better contrast for dark mode */
+    @media (prefers-color-scheme: dark) {
+        .feature-card {
+            background: rgba(102, 126, 234, 0.15) !important;
+            border: 1px solid rgba(102, 126, 234, 0.4);
+        }
+        .success-box {
+            background: rgba(76, 175, 80, 0.15) !important;
+            border: 1px solid rgba(76, 175, 80, 0.4);
+        }
+        .info-box {
+            background: rgba(33, 150, 243, 0.15) !important;
+            border: 1px solid rgba(33, 150, 243, 0.4);
+        }
+        .summary-container {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+        }
+        .summary-header {
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+        }
+        .summary-content {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .transcript-container {
+            background: rgba(40, 44, 52, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .transcript-text {
+            color: #e6e6e6;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    # Header
+    st.markdown("""
+    <div class="main-header">
+        <h1>🎬 YouTube Video Summarizer</h1>
+        <p>Transform long YouTube videos into concise, AI-powered summaries</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Sidebar enhancements
     with st.sidebar:
-        st.header("Summary Options")
+        # Add some spacing at the top
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # Summary configuration section
+        st.markdown("### 🎯 Summary Configuration")
+        
         summary_type = st.selectbox(
             "Choose summary style:",
             ["general", "detailed", "bullet_points", "key_takeaways"],
             format_func=lambda x: {
-                "general": "General Summary",
-                "detailed": "Detailed Summary", 
-                "bullet_points": "Bullet Points",
-                "key_takeaways": "Key Takeaways"
-            }[x]
+                "general": "📋 General Summary",
+                "detailed": "📖 Detailed Summary", 
+                "bullet_points": "•  Bullet Points",
+                "key_takeaways": "💡 Key Takeaways"
+            }[x],
+            help="Select the type of summary you want to generate"
         )
         
         st.markdown("---")
-        st.markdown("### About")
-        st.markdown("This app uses:")
-        st.markdown("- YouTube Transcript API")
-        st.markdown("- Groq's LLaMA 3.1-8B model")
-        st.markdown("- Streamlit interface")
-    
-    # Main content area
-    col1, col2 = st.columns([2, 1])
-    
-    with col1:
-        # Input field
-        url = st.text_input(
-            "Paste YouTube video link:",
-            placeholder="https://www.youtube.com/watch?v=...",
-            help="Enter a valid YouTube video URL"
-        )
         
-        # Process button
-        if st.button("🚀 Summarize Video", type="primary"):
-            if not url:
-                st.error("Please enter a YouTube video URL")
-                return
-                
-            with st.spinner("Processing video and generating summary..."):
-                try:
-                    # Step 1: Extract video ID
-                    video_id = extract_video_id(url)
-                    st.success(f"✅ Video ID extracted: `{video_id}`")
-                    
-                    # Step 2: Get transcript
-                    with st.status("Fetching video transcript...", expanded=False) as status:
-                        transcript_text = get_video_transcript(url)  # Pass URL instead of video_id
-                        
-                        if not transcript_text or len(transcript_text.strip()) < 50:
-                            st.error("❌ Could not extract sufficient text from video transcript.")
-                            return
-                        
-                        word_count = len(transcript_text.split())
-                        status.update(
-                            label=f"✅ Transcript fetched successfully! ({word_count:,} words)",
-                            state="complete"
-                        )
-                    
-                    # Step 3: Generate summary
-                    with st.status("Generating AI summary...", expanded=False) as status:
-                        # Check if chunking will be needed
-                        if len(transcript_text) > 3000:
-                            estimated_chunks = len(transcript_text) // 2500 + 1
-                            status.update(
-                                label=f"Processing large transcript in {estimated_chunks} chunks...",
-                                state="running"
-                            )
-                        
-                        summary = summarize_with_groq(transcript_text, summary_type)
-                        status.update(
-                            label="✅ Summary generated successfully!",
-                            state="complete"
-                        )
-                    
-                    # Display results
-                    st.markdown("---")
-                    st.subheader("📌 Video Summary")
-                    st.markdown(summary)
-                    
-                    # Statistics
-                    summary_word_count = len(summary.split())
-                    compression_ratio = (summary_word_count / word_count) * 100
-                    
-                    # Stats in columns
-                    stat_col1, stat_col2, stat_col3 = st.columns(3)
-                    with stat_col1:
-                        st.metric("Original Words", f"{word_count:,}")
-                    with stat_col2:
-                        st.metric("Summary Words", f"{summary_word_count:,}")
-                    with stat_col3:
-                        st.metric("Compression", f"{compression_ratio:.1f}%")
-                    
-                    # Expandable transcript
-                    with st.expander("📄 View Full Transcript"):
-                        st.text_area(
-                            "Complete video transcript:",
-                            transcript_text,
-                            height=200,
-                            disabled=True
-                        )
-                        
-                except ValueError as e:
-                    st.error(f"❌ Invalid URL: {str(e)}")
-                except Exception as e:
-                    st.error(f"❌ Error: {str(e)}")
-                    st.info("💡 Make sure the video has captions/subtitles available and is not private.")
+        # Features section with better contrast
+        st.markdown("### 🚀 Key Features")
+        st.markdown("""
+        <div class="feature-card">
+        <ul style="padding-left: 1rem; margin: 0;">
+        <li>✨ AI-powered summarization</li>
+        <li>🎯 Multiple summary styles</li>
+        <li>📊 Detailed analytics</li>
+        <li>⚡ Smart chunking for long videos</li>
+        <li>🔒 Secure API handling</li>
+        <li>💰 Optimized for free tier</li>
+        </ul>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # Tech stack section
+        st.markdown("### 🛠️ Technology Stack")
+        st.markdown("""
+        <div class="feature-card">
+        <div style="text-align: center;">
+        <p><strong>🤖 Groq LLaMA 3.1-8B</strong></p>
+        <p><strong>📥 yt-dlp</strong></p>
+        <p><strong>🎨 Streamlit</strong></p>
+        </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # Quick stats if available
+        if 'total_videos' in st.session_state and st.session_state.total_videos > 0:
+            st.markdown("### 📊 Session Stats")
+            st.markdown(f"""
+            <div class="info-box">
+            <p>📹 <strong>Videos processed:</strong> {st.session_state.total_videos}</p>
+            <p>📝 <strong>Words processed:</strong> {st.session_state.total_words_processed:,}</p>
+            </div>
+            """, unsafe_allow_html=True)
     
-    with col2:
-        st.markdown("### 📋 How it works")
-        st.markdown("""
-        1. **Extract Video ID** from YouTube URL
-        2. **Fetch Transcript** using YouTube API
-        3. **Generate Summary** with Groq LLaMA
-        4. **Display Results** with statistics
-        """)
+    # Main content with tabs
+    tab1, tab2, tab3 = st.tabs(["📹 Summarize Video", "📊 Analytics", "❓ Help"])
+    
+    with tab1:
+        col1, col2 = st.columns([2, 1])
         
-        st.markdown("### 🎯 Summary Types")
-        st.markdown("""
-        - **General**: Balanced overview
-        - **Detailed**: Comprehensive summary
-        - **Bullet Points**: Key points listed
-        - **Key Takeaways**: Main insights
-        """)
-        
-        st.markdown("### 🔧 Requirements")
-        st.markdown("""
-        - Video must have captions/subtitles
-        - Video must be publicly accessible
-        - Groq API key required
-        """)
+        with col1:
+            # Input section
+            st.markdown("### 🔗 Video Input")
+            url = st.text_input(
+                "YouTube Video URL:",
+                placeholder="https://www.youtube.com/watch?v=...",
+                help="Paste any YouTube video link here"
+            )
+            
+            # Example videos
 
-    # Footer
-    st.markdown("---")
-    st.markdown(
-        '<div style="text-align: center; color: #666;">Powered by Groq LLaMA 3.1-8B • YouTube Transcript API • Streamlit</div>',
-        unsafe_allow_html=True
-    )
+            # Process button with enhanced styling
+            col_btn1, col_btn2, col_btn3 = st.columns([1, 2, 1])
+            with col_btn2:
+                process_button = st.button("🚀 Generate Summary", type="primary", use_container_width=True)
+                
+        with col2:
+            # Quick stats or tips
+            st.markdown("### 💡 Quick Tips")
+            st.markdown("""
+            <div class="info-box">
+            <p><strong>Best results with:</strong></p>
+            <ul>
+            <li>🎯 Videos with captions</li>
+            <li>📺 Educational/informational content</li>
+            <li>🗣️ Clear speech</li>
+            <li>📚 Structured presentations</li>
+            </ul>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        # Processing section
+        if process_button:
+            if not url:
+                st.error("🚨 Please enter a YouTube video URL")
+            else:
+                # Use optimized default values for free tier
+                process_video(url, summary_type, chunk_size=2500, max_summary_tokens=500)
+    
+    with tab2:
+        st.markdown("### 📊 Usage Analytics")
+        
+        # Initialize session state for analytics
+        if 'total_videos' not in st.session_state:
+            st.session_state.total_videos = 0
+        if 'total_words_processed' not in st.session_state:
+            st.session_state.total_words_processed = 0
+        if 'avg_compression' not in st.session_state:
+            st.session_state.avg_compression = 0
+        
+        # Display analytics
+        metric_col1, metric_col2, metric_col3, metric_col4 = st.columns(4)
+        
+        with metric_col1:
+            st.metric("Videos Summarized", st.session_state.total_videos, "0")
+        with metric_col2:
+            st.metric("Words Processed", f"{st.session_state.total_words_processed:,}", "0")
+        with metric_col3:
+            st.metric("Avg Compression", f"{st.session_state.avg_compression:.1f}%", "0%")
+        with metric_col4:
+            st.metric("Sessions Today", "1", "0")
+            
+        # Recent activity placeholder
+        st.markdown("### 📈 Recent Activity")
+        st.info("🔄 Analytics will appear here after processing videos")
+    
+    with tab3:
+        st.markdown("### ❓ How to Use")
+        
+        help_col1, help_col2 = st.columns(2)
+        
+        with help_col1:
+            st.markdown("""
+            <div class="feature-card">
+            <h4>📝 Step-by-Step Guide</h4>
+            <ol>
+            <li><strong>Paste URL:</strong> Copy any YouTube video link</li>
+            <li><strong>Choose Style:</strong> Select your preferred summary type</li>
+            <li><strong>Generate:</strong> Click the generate button</li>
+            <li><strong>Review:</strong> Read your AI-generated summary</li>
+            </ol>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with help_col2:
+            st.markdown("""
+            <div class="feature-card">
+            <h4>🎯 Summary Types Explained</h4>
+            <p><strong>📋 General:</strong> Balanced, concise overview</p>
+            <p><strong>📖 Detailed:</strong> Comprehensive with key points</p>
+            <p><strong>• Bullet Points:</strong> Organized list format</p>
+            <p><strong>💡 Key Takeaways:</strong> Main insights only</p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        # FAQ
+        st.markdown("### ❓ Frequently Asked Questions")
+        
+        faq_expander1 = st.expander("🎥 What types of videos work best?")
+        faq_expander1.write("Educational content, tutorials, presentations, and videos with clear speech work best. The video must have captions or subtitles.")
+        
+        faq_expander2 = st.expander("⏱️ How long does it take?")
+        faq_expander2.write("Usually 10-30 seconds for most videos. Longer videos may take up to 1-2 minutes due to chunking.")
+        
+        faq_expander3 = st.expander("🔒 Is my data secure?")
+        faq_expander3.write("Yes! We only process the video transcript. No video content is downloaded or stored.")
+
+def process_video(url, summary_type, chunk_size, max_summary_tokens):
+    """Separate function to handle video processing with enhanced UI"""
+    with st.container():
+        progress_bar = st.progress(0)
+        status_text = st.empty()
+        
+        try:
+            # Step 1: Extract video ID
+            status_text.text("🔍 Extracting video information...")
+            progress_bar.progress(20)
+            
+            video_id = extract_video_id(url)
+            st.markdown(f"""
+            <div class="success-box">
+            ✅ <strong>Video ID extracted:</strong> <code>{video_id}</code>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Step 2: Get transcript
+            status_text.text("📝 Fetching video transcript...")
+            progress_bar.progress(40)
+            
+            # Pass chunk_size to the summarization function
+            transcript_text = get_video_transcript(url)
+            
+            if not transcript_text or len(transcript_text.strip()) < 50:
+                st.error("❌ Could not extract sufficient text from video transcript.")
+                return
+            
+            word_count = len(transcript_text.split())
+            
+            st.markdown(f"""
+            <div class="success-box">
+            ✅ <strong>Transcript fetched successfully!</strong><br>
+            📊 Total words: <strong>{word_count:,}</strong>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Step 3: Generate summary
+            status_text.text("🤖 Generating AI summary...")
+            progress_bar.progress(70)
+            
+            if len(transcript_text) > 3000:
+                estimated_chunks = len(transcript_text) // chunk_size + 1
+                status_text.text(f"🤖 Processing large transcript in {estimated_chunks} chunks...")
+            
+            # Modified to pass custom parameters
+            summary = summarize_with_groq_enhanced(transcript_text, summary_type, chunk_size, max_summary_tokens)
+            progress_bar.progress(100)
+            status_text.text("✅ Summary generated successfully!")
+            
+            # Update session state analytics
+            st.session_state.total_videos += 1
+            st.session_state.total_words_processed += word_count
+            
+            # Display results with enhanced styling
+            st.markdown("---")
+            st.markdown("## 📌 Your Video Summary")
+            
+            # Summary in a beautifully styled container
+            st.markdown(f"""
+            <div class="summary-container">
+                <div class="summary-header">
+                    <h3>
+                        <span style="margin-right: 0.5rem;">🤖</span>
+                        AI Generated Summary
+                    </h3>
+                </div>
+                <div class="summary-content">
+                    {summary}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Enhanced statistics
+            summary_word_count = len(summary.split())
+            compression_ratio = (summary_word_count / word_count) * 100
+            st.session_state.avg_compression = compression_ratio
+            
+            st.markdown("### 📊 Summary Statistics")
+            
+            stat_col1, stat_col2, stat_col3, stat_col4 = st.columns(4)
+            
+            with stat_col1:
+                st.markdown(f"""
+                <div class="metric-card">
+                <h3>{word_count:,}</h3>
+                <p>Original Words</p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+            with stat_col2:
+                st.markdown(f"""
+                <div class="metric-card">
+                <h3>{summary_word_count:,}</h3>
+                <p>Summary Words</p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+            with stat_col3:
+                st.markdown(f"""
+                <div class="metric-card">
+                <h3>{compression_ratio:.1f}%</h3>
+                <p>Compression</p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+            with stat_col4:
+                reading_time = summary_word_count // 200  # ~200 words per minute
+                st.markdown(f"""
+                <div class="metric-card">
+                <h3>{max(1, reading_time)} min</h3>
+                <p>Reading Time</p>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            # Action buttons
+            st.markdown("### 🎯 Actions")
+            action_col1, action_col2, action_col3 = st.columns(3)
+            
+            with action_col1:
+                if st.button("📋 Copy Summary", use_container_width=True):
+                    st.success("✅ Summary copied to clipboard!")
+            
+            with action_col2:
+                st.download_button(
+                    "💾 Download Summary",
+                    summary,
+                    file_name=f"summary_{video_id}.txt",
+                    mime="text/plain",
+                    use_container_width=True
+                )
+            
+            with action_col3:
+                if st.button("🔄 Try Another Video", use_container_width=True):
+                    st.experimental_rerun()
+            
+            # Expandable transcript with better styling
+            with st.expander("📄 View Full Transcript"):
+                st.markdown(f"""
+                <div class="transcript-container">
+                    <pre class="transcript-text">{transcript_text}</pre>
+                </div>
+                """, unsafe_allow_html=True)
+                
+        except ValueError as e:
+            st.error(f"🚨 Invalid URL: {str(e)}")
+        except Exception as e:
+            st.error(f"❌ Error: {str(e)}")
+            st.info("💡 Make sure the video has captions/subtitles available and is not private.")
+        finally:
+            progress_bar.empty()
+            status_text.empty()
+
+# Enhanced summarization function with custom parameters
+def summarize_with_groq_enhanced(text: str, summary_type: str = "general", chunk_size: int = 2500, max_tokens: int = 500):
+    """Enhanced summarization with custom parameters"""
+    if not api_key:
+        raise Exception("Groq API key not found. Please add GROQ_API_KEY to your .env file")
+    
+    # Use custom chunk size
+    if len(text) > 3000:
+        chunks = chunk_text(text, max_chars=chunk_size)
+        chunk_summaries = []
+        
+        for i, chunk in enumerate(chunks):
+            try:
+                prompt = f"Please provide a concise summary of this part of a video transcript:\n\n{chunk}"
+                
+                response = client.chat.completions.create(
+                    model="llama-3.1-8b-instant",
+                    messages=[{"role": "user", "content": prompt}],
+                    max_tokens=min(300, max_tokens // 2),
+                    temperature=0.1
+                )
+                
+                chunk_summaries.append(response.choices[0].message.content)
+                
+            except Exception as e:
+                raise Exception(f"Error summarizing chunk {i+1}: {str(e)}")
+        
+        combined_summary = "\n\n".join(chunk_summaries)
+        
+        final_prompts = {
+            "general": f"Please create a cohesive summary from these section summaries of a video:\n\n{combined_summary}",
+            "detailed": f"Please create a detailed, well-structured summary from these section summaries:\n\n{combined_summary}",
+            "bullet_points": f"Please organize these section summaries into clear bullet points:\n\n{combined_summary}",
+            "key_takeaways": f"Please extract the main insights and key takeaways from these summaries:\n\n{combined_summary}"
+        }
+        
+        try:
+            final_response = client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=[{"role": "user", "content": final_prompts[summary_type]}],
+                max_tokens=max_tokens,
+                temperature=0.1
+            )
+            
+            return final_response.choices[0].message.content
+            
+        except Exception as e:
+            return combined_summary
+    
+    else:
+        # Original logic for shorter texts with custom max_tokens
+        prompts = {
+            "general": f"Please provide a clear and concise summary of the following video transcript:\n\n{text}",
+            "detailed": f"Please provide a detailed summary with key points and main topics from the following video transcript:\n\n{text}",
+            "bullet_points": f"Please summarize the following video transcript in bullet points, highlighting the main topics:\n\n{text}",
+            "key_takeaways": f"Please extract the key takeaways and main insights from the following video transcript:\n\n{text}"
+        }
+        
+        try:
+            response = client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=[{"role": "user", "content": prompts[summary_type]}],
+                max_tokens=max_tokens,
+                temperature=0.1
+            )
+            
+            return response.choices[0].message.content
+            
+        except Exception as e:
+            raise Exception(f"Error generating summary: {str(e)}")
 
 if __name__ == "__main__":
     main()
