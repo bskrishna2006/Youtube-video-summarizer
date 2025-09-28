@@ -7,12 +7,45 @@ from dotenv import load_dotenv
 import tempfile
 
 # Load environment variables for local development
-load_dotenv()
+load_dotenv('.env')  # Load from current directory explicitly first
+load_dotenv(verbose=True)  # Add verbose mode to see what's happening
 
-# Get the API key from Streamlit secrets (for cloud deployment) or environment variables (for local development)
-api_key = st.secrets.get("GROQ", {}).get("api_key") or os.getenv("GROQ_API_KEY")
-# Initialize the Groq client
-client = Groq(api_key=api_key)
+# Also try loading from the current script directory explicitly
+from pathlib import Path
+script_dir = Path(__file__).parent
+env_path = script_dir / '.env'
+load_dotenv(dotenv_path=env_path)
+
+# Also try loading from the current script directory explicitly
+from pathlib import Path
+script_dir = Path(__file__).parent
+env_path = script_dir / '.env'
+load_dotenv(dotenv_path=env_path)
+
+# Get API key from environment first (for local development)
+api_key = os.getenv("GROQ_API_KEY")
+
+# If still no API key, try reading .env file manually as a last resort
+if not api_key:
+    try:
+        env_path = os.path.join(os.path.dirname(__file__), '.env')
+        if os.path.exists(env_path):
+            with open(env_path, 'r') as f:
+                for line in f:
+                    if line.strip().startswith('GROQ_API_KEY='):
+                        api_key = line.strip().split('=', 1)[1]
+                        break
+    except Exception:
+        pass
+
+# Clean the API key (remove any whitespace)
+if api_key:
+    api_key = api_key.strip()
+
+# Initialize the Groq client (will be overridden in main if needed)
+client = None
+if api_key:
+    client = Groq(api_key=api_key)
 
 def clean_autogen_transcript(text: str) -> str:
     """
@@ -202,12 +235,33 @@ def summarize_with_groq(text: str, summary_type: str = "general"):
 
 # Streamlit UI
 def main():
+    global api_key, client
+    
     st.set_page_config(
         page_title="YouTube Video Summarizer",
         page_icon="🎬",
         layout="wide",
         initial_sidebar_state="expanded"
     )
+    
+    # Try to get from Streamlit secrets (for cloud deployment) if not already loaded
+    if not api_key:
+        try:
+            api_key = st.secrets.get("GROQ", {}).get("api_key")
+            if api_key:
+                api_key = api_key.strip()
+                client = Groq(api_key=api_key)
+        except (FileNotFoundError, KeyError):
+            pass
+    
+    # Quick debug check (can be removed in production)
+    if not api_key or api_key == "your_groq_api_key_here":
+        st.error("🚨 Please set your actual Groq API key in the .env file!")
+        st.stop()
+    
+    # Ensure client is initialized
+    if not client:
+        client = Groq(api_key=api_key)
     
     # Custom CSS for better styling
     st.markdown("""
