@@ -6,12 +6,11 @@ from groq import Groq
 from dotenv import load_dotenv
 import tempfile
 
-# Load environment variables
+# Load environment variables for local development
 load_dotenv()
 
-# Get the API key from environment
-api_key = os.getenv("GROQ_API_KEY")
-
+# Get the API key from Streamlit secrets (for cloud deployment) or environment variables (for local development)
+api_key = st.secrets.get("GROQ", {}).get("api_key") or os.getenv("GROQ_API_KEY")
 # Initialize the Groq client
 client = Groq(api_key=api_key)
 
@@ -124,7 +123,7 @@ def chunk_text(text: str, max_chars: int = 2000):
 def summarize_with_groq(text: str, summary_type: str = "general"):
     """Summarize text using Groq's LLaMA model with chunking for large texts"""
     if not api_key:
-        raise Exception("Groq API key not found. Please add GROQ_API_KEY to your .env file")
+        raise Exception("Groq API key not found. Please add GROQ_API_KEY to your .env file (local) or configure secrets.toml (Streamlit Cloud)")
     
     # Check if text is too long and needs chunking
     if len(text) > 3000:  # Conservative limit to avoid token issues
@@ -750,7 +749,7 @@ def process_video(url, summary_type, chunk_size, max_summary_tokens):
 def summarize_with_groq_enhanced(text: str, summary_type: str = "general", chunk_size: int = 2500, max_tokens: int = 500):
     """Enhanced summarization with custom parameters"""
     if not api_key:
-        raise Exception("Groq API key not found. Please add GROQ_API_KEY to your .env file")
+        raise Exception("Groq API key not found. Please add GROQ_API_KEY to your .env file (local) or configure secrets.toml (Streamlit Cloud)")
     
     # Use custom chunk size
     if len(text) > 3000:

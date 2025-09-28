@@ -1,0 +1,15 @@
+# Core Dependencies
+streamlit>=1.28.0
+groq>=0.4.1
+yt-dlp>=2023.10.13
+python-dotenv>=1.0.0
+
+# HTTP and networking dependencies (version-locked for compatibility)
+httpx>=0.24.0,<0.26.0
+requests>=2.31.0
+urllib3>=2.0.0
+
+# Optional: For better performance and compatibility
+certifi>=2023.7.22
+charset-normalizer>=3.2.0
+idna>=3.4
