@@ -509,16 +509,16 @@ def main():
         st.markdown("<br>", unsafe_allow_html=True)
         
         # Tech stack section
-        st.markdown("### 🛠️ Technology Stack")
-        st.markdown("""
-        <div class="feature-card">
-        <div style="text-align: center;">
-        <p><strong>🤖 Groq LLaMA 3.1-8B</strong></p>
-        <p><strong>📥 yt-dlp</strong></p>
-        <p><strong>🎨 Streamlit</strong></p>
-        </div>
-        </div>
-        """, unsafe_allow_html=True)
+        # st.markdown("### 🛠️ Technology Stack")
+        # st.markdown("""
+        # <div class="feature-card">
+        # <div style="text-align: center;">
+        # <p><strong>🤖 Groq LLaMA 3.1-8B</strong></p>
+        # <p><strong>📥 yt-dlp</strong></p>
+        # <p><strong>🎨 Streamlit</strong></p>
+        # </div>
+        # </div>
+        # """, unsafe_allow_html=True)
         
         st.markdown("<br>", unsafe_allow_html=True)
         
