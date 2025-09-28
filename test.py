@@ -88,6 +88,6 @@ if __name__ == "__main__":
         print("Video ID:", vid)
         transcript = get_transcript_text(video_url, lang="en")
         print("\n=== TRANSCRIPT ===\n")
-        print(transcript)  # preview first 2k chars
+        print(transcript)
     except Exception as e:
         print("Error:", e)

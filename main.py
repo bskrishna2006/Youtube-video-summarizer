@@ -1,5 +1,4 @@
 
-
 import re
 import requests
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -7,13 +6,11 @@ from langchain.docstore.document import Document
 from langchain_groq import ChatGroq
 from langchain.chains.summarize import load_summarize_chain
 import yt_dlp
-import os
 from dotenv import load_dotenv
-
+import os
 load_dotenv()
-
-# 🔹 Step 0: Load your API Key from .env
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+# 🔹 Step 0: Hardcode your API Key
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")  # replace with your real key
 
 # 🔹 Step 1: Extract video ID from YouTube URL
 def extract_video_id(url: str) -> str:
